@@ -1,17 +1,24 @@
 import { PersonInfo } from "@/common/types";
 import { getPersonInfo } from "@/services/apiServices";
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 
 interface FormProps {
   onSubmit: (personInfo: PersonInfo) => void;
 }
 function Form({ onSubmit }: FormProps) {
   const [name, setName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const results = await getPersonInfo(name);
-    onSubmit(results);
+    setIsLoading(true);
+    try {
+      const results = await getPersonInfo(name);
+      onSubmit(results);
+    } finally {
+      setIsLoading(false); 
+    }
+
   };
 
   return (
@@ -19,16 +26,17 @@ function Form({ onSubmit }: FormProps) {
       <input
         type="text"
         value={name}
-        onChange={(e) => setName(e.target.value)}
+        onChange={(e:ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
         placeholder="Enter a name"
-        className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="text_input peer text-ellipsis focus:outline-none focus:ring-2 focus:ring-amber-500"
         required
+        disabled={isLoading}
       />
       <button
         type="submit"
-        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700"
+        className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-500"
       >
-        Guess
+        {isLoading ? "Loading..." : "Guess"}
       </button>
     </form>
   );
